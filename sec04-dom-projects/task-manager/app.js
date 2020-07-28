@@ -69,7 +69,7 @@ const clearTasksButton = document.querySelector('.clear-tasks');
 clearTasksButton.addEventListener('click', deleteAllTaskItems);
 
 const taskInputForm = document.querySelector('#task-form');
-taskInputForm.addEventListener('submit', function(e){
+const postNewTaskItem = function(e){
     e.preventDefault();
     
     const taskInputText = taskInputForm.querySelector("input[type='text']");
@@ -79,4 +79,5 @@ taskInputForm.addEventListener('submit', function(e){
     } else {
         alert("You cannot add empty task");
     }
-})
+}
+taskInputForm.addEventListener('submit', postNewTaskItem)
