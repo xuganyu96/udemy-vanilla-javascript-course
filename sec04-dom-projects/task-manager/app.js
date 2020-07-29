@@ -162,5 +162,6 @@ filterTasksInput.addEventListener("keyup", function(e){
     taskListDisplay.refreshTaskListView();
 })
 
+// Set init(reset) to false if you want to persist tasks
 taskListStorage.init(true);
 taskListDisplay.refreshTaskListView();
