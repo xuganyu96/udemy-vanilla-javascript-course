@@ -1,3 +1,84 @@
+// Script for locally persistent task list
+const taskListStorage = {
+    init: function(reset){
+        // If reset is True or if taskList is not defined in localStorage, then define it as an empty array
+        if(reset || localStorage.getItem('taskList') === null){
+            console.log("Setting localStorage.taskList to empty array")
+            localStorage.setItem('taskList', JSON.stringify([]));
+        } else {
+            console.log("Skipping localStorage.taskList reset")
+        }
+    },
+    add: function(newTaskString) {
+        // Add a new task with the task String, with taskStatus default to "active"
+        const taskList = JSON.parse(localStorage.getItem('taskList'));
+        let newTask = null;
+    
+        if(taskList.length === 0){
+            newTask = {taskID: 0, taskString: newTaskString, taskStatus: "active"};
+        }else{
+            const taskIDs = taskList.map(function(value){return value.taskID});
+            const maxID = Math.max.apply(null, taskIDs);
+            const newID = maxID + 1;
+            newTask = {taskID: newID, taskString: newTaskString, taskStatus: "active"};
+        }
+    
+        taskList.push(newTask);
+        localStorage.setItem("taskList", JSON.stringify(taskList));
+        return newTask
+    },
+    delete: function(targetID) {
+        // Note that we don't remove items; we simply set the corresponding task's status to "deleted"
+        const taskList = JSON.parse(localStorage.getItem('taskList'));
+        const taskIDs = taskList.map(function(value){return value.taskID});
+    
+        if(taskIDs.includes(targetID)){
+            taskList.forEach(function(value){
+                if(value.taskID === targetID){
+                    value.taskStatus = "deleted";
+                }
+            })
+    
+            localStorage.setItem("taskList", JSON.stringify(taskList));
+            console.log(`Task with id ${targetID} is marked "deleted"`);
+        }else{
+            console.log(`Task with id ${targetID} is not found`);
+        }
+    },
+    deleteAll: function() {
+        const taskList = JSON.parse(localStorage.getItem('taskList'));
+        const taskIDs = taskList.map(function(value){return value.taskID});
+    
+        taskIDs.forEach(function(value){taskListStorage.delete(value)});
+    },
+    getAllTasks: function() {
+        return JSON.parse(localStorage.getItem('taskList'));
+    },
+    getActiveTasks: function() {
+        const allTasks = taskListStorage.getAllTasks();
+        const activeTasks = [];
+        allTasks.forEach(function(value){
+            if(value.taskStatus === "active"){
+                activeTasks.push(value);
+            }
+        })
+
+        return activeTasks;
+    }
+}
+
+taskListStorage.init(true);
+taskListStorage.add("Task 0");
+taskListStorage.add("Task 1");
+taskListStorage.add("Task 2");
+console.log(taskListStorage.getActiveTasks());
+taskListStorage.delete(0);
+console.log(taskListStorage.getActiveTasks());
+taskListStorage.deleteAll();
+console.log(taskListStorage.getActiveTasks());
+
+
+
 const deleteGrandParent = function(e){
     /* 
     ONLY FOR EVENT LISTENER!
