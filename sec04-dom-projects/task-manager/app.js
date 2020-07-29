@@ -67,98 +67,100 @@ const taskListStorage = {
     }
 }
 
-taskListStorage.init(true);
-taskListStorage.add("Task 0");
-taskListStorage.add("Task 1");
-taskListStorage.add("Task 2");
-console.log(taskListStorage.getActiveTasks());
-taskListStorage.delete(0);
-console.log(taskListStorage.getActiveTasks());
-taskListStorage.deleteAll();
-console.log(taskListStorage.getActiveTasks());
-
-
-
-const deleteGrandParent = function(e){
-    /* 
-    ONLY FOR EVENT LISTENER!
-    Delete the parent element's parent element.
-    */
-    const target = e.target;
-    target.parentElement.parentElement.remove();
-}
-
-const buildDeleteTaskButton = function(){
-    const deleteTaskIcon = document.createElement('i');
-    deleteTaskIcon.className = "fa fa-remove"
-    const deleteTaskButton = document.createElement('a');
-    deleteTaskButton.setAttribute('href', '#');
-    deleteTaskButton.className = "delete-item secondary-content";
-    deleteTaskButton.appendChild(deleteTaskIcon)
-    deleteTaskButton.addEventListener('click', deleteGrandParent);
-    
-    return deleteTaskButton
-}
-
-const buildTaskItemElement = function(taskString){
-    /*
-    Given a string taskString that is the name of the task, construct an <li> element that can later be attached to the
-    parent <ul> element. The <li> element will have the following:
-    -   class "collection-item"
-    -   Children:
-        1.  A text node that contains the taskString
-        2.  An <a> tag with class "delete-item secondary-content" and href="#"
-            2.1 An <i> tag: <i class="fa fa-remove"></i>
-    */
-    const newTaskItem = document.createElement('li');
-    newTaskItem.className = "collection-item";
-    const newDeleteButton = buildDeleteTaskButton();
-    newTaskItem.appendChild(document.createTextNode(taskString));
-    newTaskItem.appendChild(newDeleteButton);
-
-    return newTaskItem;
-}
-
-const addTaskItemElement = function(taskString){
-    /*
-    Given a string taskString, build a new <li> element that is a task listing, then append it to the task collection
-    */
-   const taskCollection = document.querySelector('ul.collection');
-   console.log(taskCollection);
-   const newTaskItem = buildTaskItemElement(taskString);
-   taskCollection.appendChild(newTaskItem);
-}
-
-const deleteAllTaskItems = function(){
-
-    /* 
-    Remove all children of the <ul> element
-    */
-   
-    const taskCollection = document.querySelector('ul.collection');
-    const nTasks = document.querySelectorAll('ul.collection li.collection-item').length;
-    if(confirm(`Delete all ${nTasks} tasks?`)) {
-        while(taskCollection.children.length != 0){
-            taskCollection.children[0].remove();
-        }
-        console.log(`${nTasks} tasks deleted`);    
-    }   
-}
-
-
-const clearTasksButton = document.querySelector('.clear-tasks');
-clearTasksButton.addEventListener('click', deleteAllTaskItems);
-
-const taskInputForm = document.querySelector('#task-form');
-const postNewTaskItem = function(e){
-    e.preventDefault();
-    
-    const taskInputText = taskInputForm.querySelector("input[type='text']");
-    if(taskInputText.value.length != 0){
-        addTaskItemElement(taskInputText.value);
-        taskInputForm.reset();
-    } else {
-        alert("You cannot add empty task");
+const deepSetAttribute = function(e, k, v) {
+    // Given HTML element e, set e and all its descendents, including children of children, to have attribute k: v
+    if(e.children.length === 0){
+        e.setAttribute(k, v);
+    }else{
+        e.setAttribute(k, v);
+        Array.from(e.children).forEach(function(value){deepSetAttribute(value, k, v)});
     }
 }
-taskInputForm.addEventListener('submit', postNewTaskItem)
+
+const taskListDisplay = {
+    buildDeleteTaskButton: function(){
+        // Build the element <a href="#" className="delete-item secondary-content"><i></i></a>
+        // At this stage no "task_id" attribute is assigned yet
+        const deleteTaskIcon = document.createElement('i');
+        deleteTaskIcon.className = "fa fa-remove"
+
+        const deleteTaskButton = document.createElement('a');
+        deleteTaskButton.setAttribute('href', '#');
+        deleteTaskButton.className = "delete-item secondary-content";
+        deleteTaskButton.appendChild(deleteTaskIcon)
+
+        deleteTaskButton.addEventListener('click', function(e){
+            const taskID = Number(e.target.getAttribute('task_id'));
+            taskListStorage.delete(taskID);
+            taskListDisplay.refreshTaskListView();
+        })
+        
+        return deleteTaskButton
+    },
+    buildTaskItemElement: function(taskItem){
+        /*
+        Given a string taskString that is the name of the task, construct an <li> element that can later be attached to the
+        parent <ul> element. The <li> element will have the following:
+        -   class "collection-item"
+        -   Children:
+            1.  A text node that contains the taskString
+            2.  An <a> tag with class "delete-item secondary-content" and href="#"
+                2.1 An <i> tag: <i class="fa fa-remove"></i>
+        */
+        const newTaskItemElement = document.createElement('li');
+        newTaskItemElement.className = "collection-item";
+        const newDeleteButton = taskListDisplay.buildDeleteTaskButton();
+        newTaskItemElement.appendChild(document.createTextNode(taskItem.taskString));
+        newTaskItemElement.appendChild(newDeleteButton);
+        deepSetAttribute(newTaskItemElement, 'task_id', taskItem.taskID);
+
+        return newTaskItemElement;
+    },
+    refreshTaskListView: function(){
+        // Iterate through the active tasks and display them on to the collection
+
+        // First clear the current selection
+        const taskListElement = document.querySelector("ul.collection");
+        taskListElement.querySelectorAll("li").forEach(function(value){value.remove();});
+
+        // Add all active tasks that matches task filtering; if task filtering is empty, then display all active tasks
+        const activeTasks = taskListStorage.getActiveTasks()
+        activeTasks.forEach(function(value){
+            const taskItemElement = taskListDisplay.buildTaskItemElement(value);
+
+            let filterStr = document.querySelector("#filter").value;
+            if(value.taskString.includes(filterStr)){
+                taskListElement.appendChild(taskItemElement);
+            }
+        })
+    }
+}
+
+// Now let's define the events
+taskInputForm = document.querySelector("#task-form");
+taskInputForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    form = e.target;
+    inputTaskString = form.querySelector('#task').value;
+    if(inputTaskString.length === 0){
+        alert("You cannot add empty task!");
+    }else{
+        taskListStorage.add(inputTaskString);
+        taskListDisplay.refreshTaskListView();
+    }
+    form.reset();
+})
+
+clearTasksButton = document.querySelector(".clear-tasks");
+clearTasksButton.addEventListener('click', function(e){
+    taskListStorage.deleteAll();
+    taskListDisplay.refreshTaskListView();
+})
+
+filterTasksInput = document.querySelector("#filter");
+filterTasksInput.addEventListener("keyup", function(e){
+    taskListDisplay.refreshTaskListView();
+})
+
+taskListStorage.init(true);
+taskListDisplay.refreshTaskListView();
