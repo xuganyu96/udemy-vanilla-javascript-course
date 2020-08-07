@@ -52,19 +52,19 @@ TaskItem.decodeFromObj = function(rawObj){
     return new TaskItem(rawObj.taskString, rawObj.dueDate, rawObj.isActive);
 }
 
-const LOCAL_STORAGE_KEY = 'taskList'
-function ToDoListApp(){
+function ToDoListApp(localStorageKey){
     /*
     This is the representation of the layer between HTML and localStorage; 
     this.taskList is the ultimate source of truth;
     */
     this.taskList = [];
+    this.localStorageKey = localStorageKey;
 
     this.save = function(){
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(this.taskList));
+        localStorage.setItem(this.localStorageKey, JSON.stringify(this.taskList));
     }
     this.load = function(){
-        rawTaskList = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+        rawTaskList = JSON.parse(localStorage.getItem(this.localStorageKey));
         this.taskList = rawTaskList.map(function(value){return TaskItem.decodeFromObj(value)})
     }
     this.add = function(taskItem){
@@ -86,7 +86,7 @@ function ToDoListApp(){
         return this.taskList[i];
     }
     this.init = function(reset){
-        if((localStorage.getItem(LOCAL_STORAGE_KEY) === null) | reset){
+        if((localStorage.getItem(this.localStorageKey) === null) | reset){
             this.taskList = [];
             this.save()
         }else{
@@ -106,6 +106,7 @@ console.log(pastTask.displayDaysLeft());
 console.log(todayTask.displayDaysLeft());
 console.log(futureTask.displayDaysLeft());
 
-const app = new ToDoListApp()
+const app = new ToDoListApp('taskList');
 app.init();
+console.log(app.taskList);
 // There is a problem where if 
