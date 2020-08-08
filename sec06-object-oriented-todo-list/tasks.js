@@ -52,7 +52,7 @@ TaskItem.decodeFromObj = function(rawObj){
     return new TaskItem(rawObj.taskString, rawObj.dueDate, rawObj.isActive);
 }
 
-function ToDoListApp(localStorageKey){
+function TaskStorage(localStorageKey){
     /*
     This is the representation of the layer between HTML and localStorage; 
     this.taskList is the ultimate source of truth;
@@ -95,10 +95,16 @@ function ToDoListApp(localStorageKey){
     }
 }
 
+function TaskDisplay(){
+    /*
+    
+    */
+}
+
 
 const YESTERDAY = new Date(Date.now() - (1000 * 24 * 3600));
 const TODAY = new Date(Date.now());
-const WEEKFROMTODAY = new Date(Date.now() + (1000 * 24 * 3600 * 7))
+const WEEKFROMTODAY = new Date(Date.now() + (1000 * 24 * 3600 * 7));
 const pastTask = new TaskItem("sample overdue task", YESTERDAY);
 const todayTask = new TaskItem("sample today task", TODAY);
 const futureTask = new TaskItem("sample future task", WEEKFROMTODAY);
@@ -106,7 +112,7 @@ console.log(pastTask.displayDaysLeft());
 console.log(todayTask.displayDaysLeft());
 console.log(futureTask.displayDaysLeft());
 
-const app = new ToDoListApp('taskList');
-app.init();
-console.log(app.taskList);
+const storage = new TaskStorage('taskList');
+storage.init();
+console.log(storage.taskList);
 // There is a problem where if 
