@@ -9,7 +9,7 @@ document.querySelector("#joke-form").addEventListener("submit", function(e){
     const inputNumber = e.target.querySelector("#n-jokes").value
     const jokeNumber = (inputNumber.length === 0) ? 1 : inputNumber;
     if(jokeNumber.length != 0){
-        const endpoint = `http://api.icndb.com/jokes/random/${jokeNumber}`
+        const endpoint = `https://api.icndb.com/jokes/random/${jokeNumber}`
 
     const xhr = new XMLHttpRequest();
     xhr.open("GET", endpoint, true);
