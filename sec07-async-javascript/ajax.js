@@ -57,12 +57,14 @@ getDataButton.addEventListener('click', function(e){
     xhr.onload = function(){
         if(this.status === 200){
             const customer = JSON.parse(this.responseText);
-            const customerDisplay = document.createElement("ul");
-            customerDisplay.innerHTML = `
+            const outputContainer = document.querySelector("#output")
+            const customerDisplay = `
+            <ul>
                 <li>${customer.id}</li>
                 <li>${customer.name}</li>
-            `;        
-            document.querySelector("#output").appendChild(customerDisplay);
+            </ul>
+            `;
+            outputContainer.innerHTML = customerDisplay
         }
     }
     // this corresponds to readyState 3; can be useful for the spinning loading screen
@@ -76,3 +78,57 @@ getDataButton.addEventListener('click', function(e){
     // xhr.send()
 })
 
+// Example 4: Some issues with asynchronous JavaScript, and how we can use callback to address those issues
+const blogPosts = [
+    {postID: 1, postTitle: "Blog Post 1"},
+    {postID: 2, postTitle: "Blog Post 2"}
+]
+function pushPost(newPost){
+    setTimeout(function(){
+        blogPosts.push(newPost);
+    }, 2000)
+}
+function displayPosts(){
+    const outputContainer = document.querySelector("#output")
+    const outputCollection = document.createElement("ul");
+    outputCollection.className = "collection"
+    outputContainer.appendChild(outputCollection);
+    setTimeout(function(){
+        blogPosts.forEach(function(value){
+            const postDisplay = document.createElement("li");
+            postDisplay.className = "collection-item";
+            postDisplay.innerText = value.postTitle;
+            outputCollection.appendChild(postDisplay);
+        })
+    })
+}
+getDataButton.addEventListener('click', function(e){
+    // With this implementation, the display will be instant, but post 3 will be missing because displayPosts() 
+    // finished before post 3 is pushed onto the blogPost array
+
+    // pushPost({postID: 3, postTitle: "Blog Post 3"});
+    // displayPosts();
+})
+
+/*
+In the example above, we are emulating a situation in which the front-end is communicating with a separate backend that
+could take significant time to process requests. As shown above, pusing a post to the backend is emulated to to happen 
+2 seconds after the pushPost() method is called, while displayPosts happens instantly. As a result, displayPosts 
+happens before the post was pushed to the post array, so the third post will not be displayed, despite that pushPost 
+is called before displayPosts. This is some kind of race conditions.
+
+One way to fix it is by asking the pushPost to run displayPosts again after it finished its original task. Here is the 
+implementation with proper callback:
+*/
+function pushPostCallback(newPost, callback){
+    setTimeout(function() {
+        blogPosts.push(newPost);
+        callback()
+    }, 2000);
+}
+
+getDataButton.addEventListener('click', function(e){
+    // With this implementation, after hitting the button, there will be a 2 second delay before the full set of posts 
+    // are displayed correctly
+    pushPostCallback({postID: 4, postTitle: "Blog Post 4"}, displayPosts);
+})
