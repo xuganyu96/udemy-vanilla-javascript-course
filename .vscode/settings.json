@@ -18,7 +18,6 @@
     "python.pythonPath": "/home/bruce/miniconda3/bin/python",
     "python.terminal.activateEnvironment": false,
     "terminal.integrated.fontFamily": "Jetbrains Mono",
-    "workbench.colorTheme": "One Dark Pro",
     "workbench.settings.editor": "json",
     "workbench.settings.openDefaultSettings": true,
     "workbench.settings.useSplitJSON": true,
