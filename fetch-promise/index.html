@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <h1>JSON Place Holder</h1>
+    <small>With Fetch API</small>
+  </div>
+  <div>
+    <div>
+      <form id="get-comments">
+        <label for="parent-post-id-1">GET comments for post with ID</label>
+        <input type="number" id="parent-post-id-1" value="1">
+        <button type="submit" id="get-comments-under-post">Get comments</button>
+      </form>
+    </div>
+    <div>
+      <form id="post-blogpost">
+        <label for="blog-post-title"><h4>New Blog Post Title</h4></label>
+        <input type="text" id="blog-post-title" placeholder="New Untitled Post"><br>
+        <label for="blog-post-body"><h4>New Blog Post Title</h4></label>
+        <textarea id="blog-post-body" style="width: 50em; height: 20em;"></textarea>
+        <button type="submit" id="post-comment-under-post">POST comment</button>
+      </form>
+    </div>
+    <div class="comments-display">
+      <h2>Comments</h2>
+      <ul class="comments-collection">
+        <!-- Put comments here -->
+      </ul>
+    </div>
+  </div>
+  <script src="es6-promise.js"></script>
+  <script src="fetch-http.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
