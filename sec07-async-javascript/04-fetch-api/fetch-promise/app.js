@@ -1,9 +1,14 @@
 jsonPlaceHolder = new FetchHTTP("https://jsonplaceholder.typicode.com");
 
 document.querySelector("#get-comments").addEventListener("submit", function(e){
+    // First gather form input data
     const parentPostID = e.target.querySelector("#parent-post-id-1").value;
     const path = `/posts/${parentPostID}/comments`;
-    jsonPlaceHolder.get(path);
+    
+    // Query for external data
+    jsonPlaceHolder.get(path)
+    .then(commentsHandler)
+    .catch(errorHandler);
 
     e.preventDefault();
 })
@@ -18,7 +23,12 @@ document.querySelector("#post-blogpost").addEventListener("submit", function(e){
         body: postBody
     }
     console.log(newPost);
-    jsonPlaceHolder.post("/posts", newPost);
+    jsonPlaceHolder.post("/posts", newPost)
+    .then(resp => {
+        const alertMessage = `Your post "${resp.title}" is accepted with ID ${resp.id}`;
+        alert(alertMessage);
+    })
+    .catch(errorHandler);
 
     e.preventDefault();
 })
